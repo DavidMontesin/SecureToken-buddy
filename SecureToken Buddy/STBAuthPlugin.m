@@ -20,8 +20,8 @@
 //  Based on example from Thomas Burgin.
 //  https://github.com/tburgin/PSU_2015
 
-#import "EBAuthPlugin.h"
-#import "Escrow_Buddy-Swift.h" // Makes Swift classes available to ObjC
+#import "STBAuthPlugin.h"
+#import "SecureToken_Buddy-Swift.h" // Makes Swift classes available to ObjC
 
 #pragma mark
 #pragma mark Entry Point Wrappers

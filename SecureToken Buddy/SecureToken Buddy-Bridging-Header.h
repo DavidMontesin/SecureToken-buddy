@@ -17,4 +17,4 @@
 //  limitations under the License.
 //
 
-#import "EBAuthPlugin.h"
+#import "STBAuthPlugin.h"
