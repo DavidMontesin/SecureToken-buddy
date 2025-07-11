@@ -25,7 +25,7 @@ import Foundation
 import Security
 import os.log
 
-class Invoke: EBMechanism {
+class Invoke: STBMechanism {
     // Log for the Invoke functions
     private static let log = OSLog(subsystem: "com.netflix.Escrow-Buddy", category: "Invoke")
 

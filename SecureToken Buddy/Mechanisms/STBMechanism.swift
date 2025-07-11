@@ -1,5 +1,5 @@
 //
-//  EBMechanism.swift
+//  STBMechanism.swift
 //  Escrow Buddy
 //
 //  Copyright 2023 Netflix
@@ -24,58 +24,58 @@ import Foundation
 import Security
 import os.log
 
-class EBMechanism: NSObject {
+class STBMechanism: NSObject {
     // Log Escrow Buddy Mechanism
-    private static let log = OSLog(subsystem: "com.netflix.Escrow-Buddy", category: "EBMechanism")
+    private static let log = OSLog(subsystem: "com.netflix.Escrow-Buddy", category: "STBMechanism")
     // Define a pointer to the MechanismRecord. This will be used to get and set
     // all the inter-mechanism data. It is also used to allow or deny the login.
     var mechanism: UnsafePointer<MechanismRecord>
 
     // init the class with a MechanismRecord
     @objc init(mechanism: UnsafePointer<MechanismRecord>) {
-        os_log("initWithMechanismRecord", log: EBMechanism.log, type: .default)
+        os_log("initWithMechanismRecord", log: STBMechanism.log, type: .default)
         self.mechanism = mechanism
     }
 
     // Allow the login. End of the mechanism
     func allowLogin() {
-        os_log("allowLogin called", log: EBMechanism.log, type: .default)
+        os_log("allowLogin called", log: STBMechanism.log, type: .default)
         _ = self.mechanism.pointee.fPlugin.pointee.fCallbacks.pointee.SetResult(
             mechanism.pointee.fEngine, AuthorizationResult.allow)
-        os_log("Proceeding with login", log: EBMechanism.log, type: .default)
+        os_log("Proceeding with login", log: STBMechanism.log, type: .default)
     }
 
     private func getContextData(key: AuthorizationString) -> NSData? {
-        os_log("getContextData called", log: EBMechanism.log, type: .default)
+        os_log("getContextData called", log: STBMechanism.log, type: .default)
         var value: UnsafePointer<AuthorizationValue>?
         let data = withUnsafeMutablePointer(to: &value) { (ptr: UnsafeMutablePointer) -> NSData? in
             var flags = AuthorizationContextFlags()
             if self.mechanism.pointee.fPlugin.pointee.fCallbacks.pointee.GetContextValue(
                 self.mechanism.pointee.fEngine, key, &flags, ptr) != errAuthorizationSuccess
             {
-                os_log("getContextData failed", log: EBMechanism.log, type: .error)
+                os_log("getContextData failed", log: STBMechanism.log, type: .error)
                 return nil
             }
             guard let length = ptr.pointee?.pointee.length else {
-                os_log("length failed to unwrap", log: EBMechanism.log, type: .error)
+                os_log("length failed to unwrap", log: STBMechanism.log, type: .error)
                 return nil
             }
             guard let buffer = ptr.pointee?.pointee.data else {
-                os_log("data failed to unwrap", log: EBMechanism.log, type: .error)
+                os_log("data failed to unwrap", log: STBMechanism.log, type: .error)
                 return nil
             }
             if length == 0 {
-                os_log("length is 0", log: EBMechanism.log, type: .error)
+                os_log("length is 0", log: STBMechanism.log, type: .error)
                 return nil
             }
             return NSData.init(bytes: buffer, length: length)
         }
-        os_log("getContextData succeeded", log: EBMechanism.log, type: .default)
+        os_log("getContextData succeeded", log: STBMechanism.log, type: .default)
         return data
     }
 
     var username: NSString? {
-        os_log("Requesting username", log: EBMechanism.log, type: .default)
+        os_log("Requesting username", log: STBMechanism.log, type: .default)
         guard let data = getContextData(key: kAuthorizationEnvironmentUsername) else {
             return nil
         }
@@ -89,7 +89,7 @@ class EBMechanism: NSObject {
     }
 
     var password: NSString? {
-        os_log("Requesting password", log: EBMechanism.log, type: .default)
+        os_log("Requesting password", log: STBMechanism.log, type: .default)
         guard let data = getContextData(key: kAuthorizationEnvironmentPassword) else {
             return nil
         }
@@ -111,7 +111,7 @@ class EBMechanism: NSObject {
 
     // Check if some information on filevault whether it's encrypted and if decrypting.
     func getFVEnabled() -> (encrypted: Bool, decrypting: Bool) {
-        os_log("Getting FileVault status", log: EBMechanism.log, type: .default)
+        os_log("Getting FileVault status", log: STBMechanism.log, type: .default)
         let task = Process()
         task.launchPath = "/usr/bin/fdesetup"
         task.arguments = ["status"]
@@ -122,13 +122,13 @@ class EBMechanism: NSObject {
         guard let output: String = String(data: data, encoding: String.Encoding.utf8)
         else { return (false, false) }
         if (output.range(of: "FileVault is On.")) != nil {
-            os_log("FileVault is ON", log: EBMechanism.log, type: .default)
+            os_log("FileVault is ON", log: STBMechanism.log, type: .default)
             return (true, false)
         } else if output.range(of: "Decryption in progress:") != nil {
-            os_log("FileVault is DECRYPTING", log: EBMechanism.log, type: .error)
+            os_log("FileVault is DECRYPTING", log: STBMechanism.log, type: .error)
             return (true, true)
         } else {
-            os_log("FileVault is OFF", log: EBMechanism.log, type: .error)
+            os_log("FileVault is OFF", log: STBMechanism.log, type: .error)
             return (false, false)
         }
     }
